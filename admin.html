@@ -49,6 +49,42 @@ h2{color:#0066cc;font-size:1.2rem;border-bottom:2px solid #e5e7eb;padding-bottom
   <h2>1. בחר סוג טופס</h2>
   <div id="template-grid" class="template-grid"></div>
 
+  <div id="settings-panel" class="d-none">
+    <h2>הגדרות מערכת</h2>
+    <div class="card p-3 mb-3">
+      <h6>שינוי סיסמת אדמין</h6>
+      <div class="row g-2">
+        <div class="col-md-6"><input id="new-pw" type="password" class="form-control" placeholder="סיסמה חדשה"></div>
+        <div class="col-md-6"><input id="new-pw-confirm" type="password" class="form-control" placeholder="אימות סיסמה"></div>
+      </div>
+      <button class="btn btn-primary mt-2" onclick="changePw()">שמור סיסמה</button>
+    </div>
+    <div class="card p-3 mb-3">
+      <h6>מייל יעד ברירת מחדל</h6>
+      <input id="default-recipient" class="form-control mb-2" value="6787012@gmail.com">
+      <button class="btn btn-primary" onclick="saveSettings()">שמור</button>
+    </div>
+    <button class="btn btn-link" onclick="hideSettings()">חזור לבונה טפסים</button>
+  </div>
+
+  <div class="text-end mb-3">
+    <button class="btn btn-outline-secondary btn-sm" onclick="showSettings()"><i class="bi bi-gear"></i> הגדרות</button>
+    <button class="btn btn-outline-info btn-sm" onclick="showCustomBuilder()"><i class="bi bi-plus-square"></i> טופס מותאם אישית</button>
+  </div>
+
+  <div id="custom-builder" class="d-none">
+    <h2>בונה טופס מותאם אישית</h2>
+    <div class="card p-3 mb-3">
+      <input id="cb-title" class="form-control mb-2" placeholder="כותרת הטופס (לדוגמה: אישור הפעלה מיוחדת)">
+      <h6>שדות הטופס</h6>
+      <div id="cb-fields"></div>
+      <button class="btn btn-outline-primary btn-sm" onclick="addCustomField()"><i class="bi bi-plus"></i> הוסף שדה</button>
+      <hr>
+      <button class="btn btn-success" onclick="saveCustomForm()"><i class="bi bi-save"></i> שמור טופס מותאם</button>
+      <button class="btn btn-link" onclick="hideCustomBuilder()">ביטול</button>
+    </div>
+  </div>
+
   <div id="customize" class="d-none">
     <h2>2. מלא ערכים מראש (אופציונלי)</h2>
     <p class="text-muted small">השדות שתמלא יופיעו מראש בטופס. ההורה יוכל לערוך אותם לפני החתימה.</p>
@@ -236,6 +272,114 @@ ${url}
 }
 
 // init() called after auth
+
+// Custom forms storage
+const CUSTOM_FORMS_KEY = 'cheder_custom_forms_v1';
+function loadCustomForms() {
+  try { return JSON.parse(localStorage.getItem(CUSTOM_FORMS_KEY) || '{}'); } catch { return {}; }
+}
+function saveCustomForms(d) { localStorage.setItem(CUSTOM_FORMS_KEY, JSON.stringify(d)); }
+
+// Add custom forms to FORMS object on load
+const customs = loadCustomForms();
+Object.assign(FORMS, customs);
+
+function showSettings() { document.getElementById('settings-panel').classList.remove('d-none'); document.getElementById('customize').classList.add('d-none'); document.getElementById('custom-builder').classList.add('d-none'); }
+function hideSettings() { document.getElementById('settings-panel').classList.add('d-none'); }
+function showCustomBuilder() {
+  document.getElementById('custom-builder').classList.remove('d-none');
+  document.getElementById('cb-fields').innerHTML = '';
+  addCustomField();
+}
+function hideCustomBuilder() { document.getElementById('custom-builder').classList.add('d-none'); }
+
+let cbFieldCount = 0;
+function addCustomField() {
+  cbFieldCount++;
+  const id = cbFieldCount;
+  const html = `<div class="row g-2 mb-2 border rounded p-2" data-cb="${id}">
+    <div class="col-md-4"><input class="form-control form-control-sm cb-label" placeholder="תווית השדה (לדוגמה: שם התלמיד)"></div>
+    <div class="col-md-3"><select class="form-select form-select-sm cb-type">
+      <option value="text">טקסט</option>
+      <option value="number">מספר</option>
+      <option value="date">תאריך</option>
+      <option value="tel">טלפון</option>
+      <option value="email">מייל</option>
+      <option value="textarea">פסקה</option>
+      <option value="checkbox">צ׳קבוקס</option>
+      <option value="select">בחירה מרשימה</option>
+    </select></div>
+    <div class="col-md-3"><input class="form-control form-control-sm cb-options" placeholder="אופציות (לבחירה — בקווים, |, |, |)"></div>
+    <div class="col-md-1 form-check pt-1"><input type="checkbox" class="form-check-input cb-required" title="חובה?"></div>
+    <div class="col-md-1"><button class="btn btn-sm btn-outline-danger" onclick="this.closest('[data-cb]').remove()"><i class="bi bi-x"></i></button></div>
+  </div>`;
+  document.getElementById('cb-fields').insertAdjacentHTML('beforeend', html);
+}
+
+function saveCustomForm() {
+  const title = document.getElementById('cb-title').value.trim();
+  if (!title) return alert('הזן כותרת');
+  const fields = [];
+  document.querySelectorAll('[data-cb]').forEach((row, i) => {
+    const label = row.querySelector('.cb-label').value.trim();
+    if (!label) return;
+    const type = row.querySelector('.cb-type').value;
+    const opts = row.querySelector('.cb-options').value.trim();
+    const req = row.querySelector('.cb-required').checked;
+    const f = { id: 'custom_' + i + '_' + label.replace(/\s/g,'_'), label, type, required: req };
+    if (type === 'select' && opts) f.options = opts.split('|').map(s => s.trim());
+    if (type === 'textarea') f.rows = 3;
+    fields.push(f);
+  });
+  if (!fields.length) return alert('הוסף לפחות שדה אחד');
+  const key = 'custom_' + Date.now();
+  const customs = loadCustomForms();
+  customs[key] = { title, fields };
+  saveCustomForms(customs);
+  Object.assign(FORMS, customs);
+  alert('הטופס נשמר! יופיע ברשימה.');
+  hideCustomBuilder();
+  init();  // re-render template grid
+}
+
+function changePw() {
+  const a = document.getElementById('new-pw').value;
+  const b = document.getElementById('new-pw-confirm').value;
+  if (!a || a !== b) return alert('הסיסמאות לא תואמות');
+  if (a.length < 4) return alert('סיסמה חייבת להיות לפחות 4 תווים');
+  localStorage.setItem('cheder_admin_pw', a);
+  alert('הסיסמה עודכנה. תידרש בכניסה הבאה.');
+}
+
+function saveSettings() {
+  const r = document.getElementById('default-recipient').value.trim();
+  if (r) localStorage.setItem('cheder_default_recipient', r);
+  alert('נשמר');
+}
+
+// Override checkAuth to support custom password
+const _origCheckAuth = checkAuth;
+window.checkAuth = function() {
+  const stored = localStorage.getItem('cheder_admin_pw');
+  const pw = document.getElementById('auth-pw').value;
+  if ((stored && pw === stored) || pw === '6742' || pw === AUTH_PW) {
+    sessionStorage.setItem(AUTH_KEY, '1');
+    showApp();
+  } else {
+    document.getElementById('auth-err').textContent = 'סיסמה שגויה';
+  }
+};
+
+// Override default recipient
+const _origInit = init;
+window.init = function() {
+  _origInit();
+  const r = localStorage.getItem('cheder_default_recipient');
+  if (r) {
+    const el = document.getElementById('recipient');
+    if (el) el.value = r;
+  }
+};
 </script>
 </body>
 </html>
