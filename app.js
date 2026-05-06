@@ -122,6 +122,9 @@ async function submitForm() {
   }
   if (isEmpty()) return showError('אנא חתום בלוח לפני השליחה');
   document.getElementById('submit-btn').disabled = true;
+  document.getElementById('submit-btn').innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> שולח...';
+  document.getElementById('loading-box').classList.remove('d-none');
+  document.getElementById('error').classList.add('d-none');
 
   const sigDataUrl = canvas.toDataURL('image/png');
   const ref = URL_PARAMS.get('ref') || '';
@@ -146,10 +149,14 @@ async function submitForm() {
     } else {
       showError(d.error || 'שגיאה בשליחה');
       document.getElementById('submit-btn').disabled = false;
+      document.getElementById('submit-btn').innerHTML = '<i class="bi bi-check-circle-fill"></i> שלח אישור חתום';
+      document.getElementById('loading-box').classList.add('d-none');
     }
   } catch (e) {
     showError('שגיאת רשת: ' + e.message);
     document.getElementById('submit-btn').disabled = false;
+    document.getElementById('submit-btn').innerHTML = '<i class="bi bi-check-circle-fill"></i> שלח אישור חתום';
+    document.getElementById('loading-box').classList.add('d-none');
   }
 }
 

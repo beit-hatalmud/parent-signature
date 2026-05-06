@@ -29,8 +29,9 @@ h2{color:#0066cc;font-size:1.3rem;border-bottom:2px solid #e5e7eb;padding-bottom
 <body>
 <div class="card p-4">
   <div class="text-center mb-4">
+    <img src="logo.png" alt="בית התלמוד" style="max-height:90px;margin-bottom:10px">
     <h1><i class="bi bi-file-earmark-text"></i> אישור הורים</h1>
-    <div class="school-name">בית התלמוד · מעלה עמוס</div>
+    <div class="school-name">בית התלמוד · בית שמש</div>
   </div>
 
   <div id="step-no-link" class="d-none">
@@ -43,7 +44,6 @@ h2{color:#0066cc;font-size:1.3rem;border-bottom:2px solid #e5e7eb;padding-bottom
   </div>
 
   <div id="step-form" class="d-none">
-    <button class="btn btn-link p-0 mb-3" onclick="goBack()"><i class="bi bi-arrow-right"></i> חזור לבחירת סוג</button>
     <h2 id="form-title">טופס</h2>
     <div id="form-fields" class="mb-3"></div>
 
@@ -54,11 +54,12 @@ h2{color:#0066cc;font-size:1.3rem;border-bottom:2px solid #e5e7eb;padding-bottom
       <button class="btn btn-outline-secondary btn-sm" onclick="clearSig()"><i class="bi bi-eraser"></i> נקה</button>
     </div>
 
-    <div class="d-flex gap-2 align-items-center">
-      <button id="submit-btn" class="btn btn-primary btn-lg" onclick="submitForm()">
-        <i class="bi bi-check-circle-fill"></i> שלח אישור חתום
-      </button>
-      <small class="text-muted">בלחיצה תיווצר תעודת PDF חתומה ותישלח לבית התלמוד</small>
+    <button id="submit-btn" class="btn btn-primary btn-lg w-100" onclick="submitForm()">
+      <i class="bi bi-check-circle-fill"></i> שלח אישור חתום
+    </button>
+    <div id="loading-box" class="text-center mt-3 d-none">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 text-muted small">יוצר PDF חתום ושולח... עד 15 שניות</p>
     </div>
     <div id="error" class="error-box d-none"></div>
   </div>
