@@ -29,56 +29,16 @@ h2{color:#0066cc;font-size:1.3rem;border-bottom:2px solid #e5e7eb;padding-bottom
 <body>
 <div class="card p-4">
   <div class="text-center mb-4">
-    <h1><i class="bi bi-file-earmark-text"></i> אישורי הורים</h1>
+    <h1><i class="bi bi-file-earmark-text"></i> אישור הורים</h1>
     <div class="school-name">בית התלמוד · מעלה עמוס</div>
-    <a href="admin.html" class="small text-muted">בונה טפסים (לאדמין)</a>
   </div>
 
-  <div id="step-template">
-    <h2>1. בחר סוג אישור</h2>
-    <div class="row g-3">
-      <div class="col-md-4">
-        <div class="template-card" data-tpl="trip" onclick="selectTpl('trip')">
-          <i class="bi bi-geo-alt-fill"></i>
-          <h5 class="mt-2">אישור טיול</h5>
-          <p class="text-muted small mb-0">יציאה לפעילות מחוץ למוסד</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="template-card" data-tpl="photo" onclick="selectTpl('photo')">
-          <i class="bi bi-camera-fill"></i>
-          <h5 class="mt-2">אישור צילום</h5>
-          <p class="text-muted small mb-0">פרסום תמונות במדיה</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="template-card" data-tpl="medical" onclick="selectTpl('medical')">
-          <i class="bi bi-heart-pulse-fill"></i>
-          <h5 class="mt-2">אישור רפואי</h5>
-          <p class="text-muted small mb-0">טיפול רפואי במקרה חירום</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="template-card" data-tpl="general" onclick="selectTpl('general')">
-          <i class="bi bi-file-text"></i>
-          <h5 class="mt-2">אישור כללי</h5>
-          <p class="text-muted small mb-0">טופס חופשי לטקסט מותאם</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="template-card" data-tpl="payment" onclick="selectTpl('payment')">
-          <i class="bi bi-cash"></i>
-          <h5 class="mt-2">הצהרת תשלום</h5>
-          <p class="text-muted small mb-0">אישור תשלום או הוראת קבע</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="template-card" data-tpl="emergency" onclick="selectTpl('emergency')">
-          <i class="bi bi-telephone-plus-fill"></i>
-          <h5 class="mt-2">פרטי חירום</h5>
-          <p class="text-muted small mb-0">עדכון פרטי קשר חירום</p>
-        </div>
-      </div>
+  <div id="step-no-link" class="d-none">
+    <div class="text-center py-5">
+      <i class="bi bi-exclamation-triangle text-warning" style="font-size:4rem"></i>
+      <h3 class="mt-3">קישור לא תקין</h3>
+      <p class="text-muted">דף זה דורש קישור ייחודי שנשלח לך במייל או SMS על ידי בית התלמוד.</p>
+      <p class="text-muted small">אם נשלח לך קישור — לחץ עליו ישירות. אל תשמור או תשתף דף זה.</p>
     </div>
   </div>
 

@@ -5,42 +5,45 @@ let currentTpl = null;
 let canvas, ctx, drawing = false, lastX = 0, lastY = 0;
 
 const URL_PARAMS = new URLSearchParams(location.search);
-// Allow ?tpl=trip to skip template selection
+// Parent view: REQUIRES ?tpl=... otherwise show "invalid link" message
 const initialTpl = URL_PARAMS.get('tpl');
-if (initialTpl && FORMS[initialTpl]) {
-  document.addEventListener('DOMContentLoaded', () => selectTpl(initialTpl));
-}
+document.addEventListener('DOMContentLoaded', () => {
+  if (initialTpl && FORMS[initialTpl]) {
+    selectTpl(initialTpl);
+  } else {
+    document.getElementById('step-no-link').classList.remove('d-none');
+  }
+});
 
 function selectTpl(tpl) {
   currentTpl = tpl;
   const form = FORMS[tpl];
   document.getElementById('form-title').textContent = form.title;
-  // Render fields
   const fieldsEl = document.getElementById('form-fields');
-  fieldsEl.innerHTML = form.fields.map(f => renderField(f)).join('');
-  // Pre-fill from URL params
-  form.fields.forEach(f => {
+  fieldsEl.innerHTML = form.fields.map(f => renderField(f, URL_PARAMS.get(f.id))).join('');
+  // Set checkbox states from URL
+  form.fields.filter(f => f.type === 'checkbox').forEach(f => {
     const val = URL_PARAMS.get(f.id);
     if (val) {
       const el = document.getElementById('f-' + f.id);
-      if (el) {
-        if (el.type === 'checkbox') el.checked = val === '1' || val === 'true';
-        else el.value = val;
-      }
+      if (el) el.checked = val === '1' || val === 'true';
     }
   });
-  document.getElementById('step-template').classList.add('d-none');
   document.getElementById('step-form').classList.remove('d-none');
   setupCanvas();
 }
 
-function renderField(f) {
+function renderField(f, prefilled) {
   const req = f.required ? 'form-required' : '';
   const id = 'f-' + f.id;
+  // If pre-filled by admin (URL param), show as read-only display
+  const lockHint = prefilled ? '<span class="badge bg-light text-muted ms-2" style="font-size:.7rem">מוגדר מראש</span>' : '';
+  const readonly = prefilled ? 'readonly style="background:#f9fafb"' : '';
+
   if (f.type === 'textarea') {
     return `<div class="mb-3">
-      <label class="form-label ${req}">${f.label}</label>
-      <textarea id="${id}" class="form-control" rows="${f.rows||3}" ${f.required?'required':''}></textarea>
+      <label class="form-label ${req}">${f.label}${lockHint}</label>
+      <textarea id="${id}" class="form-control" rows="${f.rows||3}" ${f.required?'required':''} ${readonly}>${prefilled||''}</textarea>
     </div>`;
   }
   if (f.type === 'checkbox') {
@@ -51,16 +54,16 @@ function renderField(f) {
   }
   if (f.type === 'select') {
     return `<div class="mb-3">
-      <label class="form-label ${req}">${f.label}</label>
-      <select id="${id}" class="form-select" ${f.required?'required':''}>
+      <label class="form-label ${req}">${f.label}${lockHint}</label>
+      <select id="${id}" class="form-select" ${f.required?'required':''} ${readonly}>
         <option value="">בחר...</option>
-        ${(f.options||[]).map(o => `<option value="${o}">${o}</option>`).join('')}
+        ${(f.options||[]).map(o => `<option value="${o}" ${o===prefilled?'selected':''}>${o}</option>`).join('')}
       </select>
     </div>`;
   }
   return `<div class="mb-3">
-    <label class="form-label ${req}">${f.label}</label>
-    <input id="${id}" type="${f.type||'text'}" class="form-control" ${f.required?'required':''}>
+    <label class="form-label ${req}">${f.label}${lockHint}</label>
+    <input id="${id}" type="${f.type||'text'}" class="form-control" value="${prefilled||''}" ${f.required?'required':''} ${readonly}>
   </div>`;
 }
 
@@ -122,7 +125,7 @@ async function submitForm() {
 
   const sigDataUrl = canvas.toDataURL('image/png');
   const ref = URL_PARAMS.get('ref') || '';
-  const sendTo = URL_PARAMS.get('to') || '6742853@gmail.com';
+  const sendTo = URL_PARAMS.get('to') || '6787012@gmail.com';
 
   try {
     const body = new URLSearchParams({
