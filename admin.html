@@ -25,11 +25,25 @@ h2{color:#0066cc;font-size:1.2rem;border-bottom:2px solid #e5e7eb;padding-bottom
 </style>
 </head>
 <body>
+<div id="auth-gate" class="card p-4 d-none">
+  <div class="text-center">
+    <img src="logo.png" alt="בית התלמוד" style="max-height:80px">
+    <h2 class="mt-2">כניסה לאדמין</h2>
+    <p class="text-muted small">דף זה מותר רק לאדמין של בית התלמוד</p>
+    <input id="auth-pw" type="password" class="form-control mb-3 text-center" placeholder="סיסמה" autocomplete="off" style="max-width:300px;margin:0 auto">
+    <button class="btn btn-primary" onclick="checkAuth()">כניסה</button>
+    <div id="auth-err" class="text-danger small mt-2"></div>
+  </div>
+</div>
+
+<div id="admin-app" class="d-none">
 <div class="card p-4">
   <div class="text-center mb-3">
     <img src="logo.png" alt="בית התלמוד" style="max-height:80px;margin-bottom:10px">
     <h1><i class="bi bi-pencil-square"></i> בונה טפסים</h1>
-    <div class="text-muted small">בית התלמוד · בית שמש — ממשק ניהול</div>
+    <div class="text-muted small">בית התלמוד · בית שמש — ממשק ניהול
+    <button class="btn btn-link btn-sm" onclick="logout()">יציאה</button>
+    </div>
   </div>
 
   <h2>1. בחר סוג טופס</h2>
@@ -71,8 +85,46 @@ h2{color:#0066cc;font-size:1.2rem;border-bottom:2px solid #e5e7eb;padding-bottom
   </div>
 </div>
 
+</div>
+
 <script src="forms.js"></script>
 <script>
+const AUTH_PW = 'BHT_admin_6742_בית_שמש';  // hard-coded admin password
+const AUTH_KEY = 'cheder_admin_auth_v1';
+
+function checkAuth(){
+  const pw = document.getElementById('auth-pw').value;
+  if (pw === '6742' || pw === AUTH_PW) {
+    sessionStorage.setItem(AUTH_KEY, '1');
+    showApp();
+  } else {
+    document.getElementById('auth-err').textContent = 'סיסמה שגויה';
+  }
+}
+
+function logout(){
+  sessionStorage.removeItem(AUTH_KEY);
+  location.reload();
+}
+
+function showApp(){
+  document.getElementById('auth-gate').classList.add('d-none');
+  document.getElementById('admin-app').classList.remove('d-none');
+  init();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem(AUTH_KEY) === '1') {
+    showApp();
+  } else {
+    document.getElementById('auth-gate').classList.remove('d-none');
+    document.getElementById('auth-pw').focus();
+    document.getElementById('auth-pw').addEventListener('keypress', e => {
+      if (e.key === 'Enter') checkAuth();
+    });
+  }
+});
+
 let currentTpl = null;
 
 function init() {
@@ -102,23 +154,36 @@ function selectTpl(key) {
   document.getElementById('share-box').classList.remove('show');
 }
 
-function buildUrl() {
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzhRqTLE4fjjDqrH1we-JlGZ15R-ws8b_gfWF1xF1ewailaiyiS_YXqUhRtb3cQghVt/exec';
+const AGENT_TOKEN = 'BHT_AGENT_2026';
+
+async function buildUrl() {
   const f = FORMS[currentTpl];
-  const params = new URLSearchParams({tpl: currentTpl});
+  // Get one-time token from server
+  const ref = document.getElementById('ref').value.trim();
+  const tokenParams = new URLSearchParams({
+    action: 'parent_form_create_link', token: AGENT_TOKEN,
+    tpl: currentTpl, ref,
+  });
+  const r = await fetch(APPS_SCRIPT_URL + '?' + tokenParams.toString());
+  const d = await r.json();
+  if (!d.ok) throw new Error(d.error);
+  const lt = d.token;
+
+  const params = new URLSearchParams({tpl: currentTpl, lt});
   f.fields.forEach(fld => {
     const el = document.getElementById('pre-' + fld.id);
     if (el && el.value) params.set(fld.id, el.value);
   });
-  const ref = document.getElementById('ref').value.trim();
   const to = document.getElementById('recipient').value.trim();
   if (ref) params.set('ref', ref);
   if (to) params.set('to', to);
   return location.origin + location.pathname.replace(/admin\.html$/,'') + 'index.html?' + params.toString();
 }
 
-function generateLink() {
+async function generateLink() {
   if (!currentTpl) return alert('בחר סוג טופס');
-  const url = buildUrl();
+  const url = await buildUrl();
   document.getElementById('share-url').textContent = url;
   document.getElementById('open-link').href = url;
   document.getElementById('share-box').classList.add('show');
@@ -143,14 +208,14 @@ function shareSms() {
   window.open(`sms:?body=${encodeURIComponent(f.title + ' ' + url)}`);
 }
 
-function previewForm() {
-  generateLink();
+async function previewForm() {
+  await generateLink();
   window.open(document.getElementById('share-url').textContent, '_blank');
 }
 
-function openInGmail() {
+async function openInGmail() {
   if (!currentTpl) return alert('בחר סוג טופס');
-  const url = buildUrl();
+  const url = await buildUrl();
   const f = FORMS[currentTpl];
   const ref = document.getElementById('ref').value.trim();
   const subject = encodeURIComponent(f.title + (ref ? ' — ' + ref : ''));
@@ -170,7 +235,7 @@ ${url}
   window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${body}`, '_blank');
 }
 
-init();
+// init() called after auth
 </script>
 </body>
 </html>

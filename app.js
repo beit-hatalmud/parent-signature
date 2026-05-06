@@ -8,7 +8,8 @@ const URL_PARAMS = new URLSearchParams(location.search);
 // Parent view: REQUIRES ?tpl=... otherwise show "invalid link" message
 const initialTpl = URL_PARAMS.get('tpl');
 document.addEventListener('DOMContentLoaded', () => {
-  if (initialTpl && FORMS[initialTpl]) {
+  const lt = URL_PARAMS.get('lt');
+  if (initialTpl && FORMS[initialTpl] && lt) {
     selectTpl(initialTpl);
   } else {
     document.getElementById('step-no-link').classList.remove('d-none');
@@ -129,6 +130,7 @@ async function submitForm() {
   const sigDataUrl = canvas.toDataURL('image/png');
   const ref = URL_PARAMS.get('ref') || '';
   const sendTo = URL_PARAMS.get('to') || '6787012@gmail.com';
+  const lt = URL_PARAMS.get('lt') || '';
 
   try {
     const body = new URLSearchParams({
@@ -138,6 +140,7 @@ async function submitForm() {
       title: form.title,
       ref,
       send_to: sendTo,
+      lt,
       fields: JSON.stringify(data),
       signature: sigDataUrl,
     });
