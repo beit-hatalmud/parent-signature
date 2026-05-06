@@ -1,0 +1,82 @@
+// Form templates - each defines fields + body text
+const FORMS = {
+  trip: {
+    title: 'אישור יציאה לטיול',
+    fields: [
+      { id:'student_name', label:'שם התלמיד', type:'text', required:true },
+      { id:'cycle', label:'מחזור / כיתה', type:'text', required:true },
+      { id:'parent_name', label:'שם ההורה', type:'text', required:true },
+      { id:'parent_phone', label:'טלפון ההורה', type:'tel', required:true },
+      { id:'trip_date', label:'תאריך הטיול', type:'date', required:true },
+      { id:'trip_destination', label:'יעד הטיול', type:'text', required:true },
+      { id:'medical_notes', label:'הערות רפואיות / רגישויות', type:'textarea', rows:2 },
+      { id:'consent_trip', label:'אני מאשר בזאת את יציאת בני לטיול הנ"ל', type:'checkbox', required:true },
+      { id:'consent_first_aid', label:'אני מאשר טיפול ראשוני במקרה חירום', type:'checkbox' },
+    ],
+  },
+  photo: {
+    title: 'אישור פרסום תמונות',
+    fields: [
+      { id:'student_name', label:'שם התלמיד', type:'text', required:true },
+      { id:'parent_name', label:'שם ההורה', type:'text', required:true },
+      { id:'parent_phone', label:'טלפון ההורה', type:'tel', required:true },
+      { id:'consent_internal', label:'אני מאשר פרסום תמונות בעלון פנימי', type:'checkbox' },
+      { id:'consent_website', label:'אני מאשר פרסום תמונות באתר המוסד', type:'checkbox' },
+      { id:'consent_social', label:'אני מאשר פרסום תמונות ברשתות חברתיות', type:'checkbox' },
+      { id:'notes', label:'הערות', type:'textarea', rows:2 },
+    ],
+  },
+  medical: {
+    title: 'אישור טיפול רפואי',
+    fields: [
+      { id:'student_name', label:'שם התלמיד', type:'text', required:true },
+      { id:'student_id', label:'תעודת זהות התלמיד', type:'text', required:true },
+      { id:'parent_name', label:'שם ההורה', type:'text', required:true },
+      { id:'parent_phone', label:'טלפון ההורה', type:'tel', required:true },
+      { id:'allergies', label:'אלרגיות / רגישויות', type:'textarea', rows:2 },
+      { id:'medications', label:'תרופות קבועות', type:'textarea', rows:2 },
+      { id:'doctor_name', label:'שם רופא משפחה', type:'text' },
+      { id:'doctor_phone', label:'טלפון רופא', type:'tel' },
+      { id:'consent_treat', label:'אני מאשר טיפול רפואי במקרה חירום', type:'checkbox', required:true },
+      { id:'consent_call', label:'אני מאשר חיוג למוקד 101 במקרה צורך', type:'checkbox', required:true },
+    ],
+  },
+  general: {
+    title: 'אישור הורים כללי',
+    fields: [
+      { id:'student_name', label:'שם התלמיד', type:'text', required:true },
+      { id:'parent_name', label:'שם ההורה', type:'text', required:true },
+      { id:'parent_phone', label:'טלפון ההורה', type:'tel', required:true },
+      { id:'subject', label:'נושא האישור', type:'text', required:true },
+      { id:'content', label:'תוכן האישור (פירוט מלא)', type:'textarea', rows:5, required:true },
+    ],
+  },
+  payment: {
+    title: 'הצהרת תשלום',
+    fields: [
+      { id:'student_name', label:'שם התלמיד', type:'text', required:true },
+      { id:'parent_name', label:'שם ההורה', type:'text', required:true },
+      { id:'parent_id', label:'תעודת זהות ההורה', type:'text', required:true },
+      { id:'parent_phone', label:'טלפון ההורה', type:'tel', required:true },
+      { id:'amount', label:'סכום (₪)', type:'number', required:true },
+      { id:'purpose', label:'מטרת התשלום', type:'text', required:true },
+      { id:'method', label:'אמצעי תשלום', type:'select', options:['העברה בנקאית','שיק','מזומן','כרטיס אשראי','הוראת קבע'], required:true },
+      { id:'consent_payment', label:'אני מאשר את חיוב הסכום הנ"ל', type:'checkbox', required:true },
+    ],
+  },
+  emergency: {
+    title: 'עדכון פרטי חירום',
+    fields: [
+      { id:'student_name', label:'שם התלמיד', type:'text', required:true },
+      { id:'cycle', label:'מחזור / כיתה', type:'text', required:true },
+      { id:'mother_name', label:'שם האם', type:'text' },
+      { id:'mother_phone', label:'טלפון האם', type:'tel' },
+      { id:'father_name', label:'שם האב', type:'text' },
+      { id:'father_phone', label:'טלפון האב', type:'tel' },
+      { id:'emergency_contact_name', label:'איש קשר נוסף לחירום', type:'text' },
+      { id:'emergency_contact_phone', label:'טלפון איש קשר חירום', type:'tel' },
+      { id:'emergency_contact_relation', label:'יחס לתלמיד', type:'text' },
+      { id:'address', label:'כתובת מגורים', type:'text' },
+    ],
+  },
+};

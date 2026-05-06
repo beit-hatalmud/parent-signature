@@ -3,142 +3,116 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>חתימת הורים</title>
+<title>אישורי הורים — בית התלמוד</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-body{font-family:'Heebo',sans-serif;background:linear-gradient(135deg,#f8fafc 0%,#e0f2fe 100%);min-height:100vh;padding:20px}
-.card{border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.08);border:none;max-width:700px;margin:30px auto}
+body{font-family:'Heebo',sans-serif;background:linear-gradient(135deg,#f8fafc 0%,#e0f2fe 100%);min-height:100vh;padding:20px;color:#1f2937}
+.card{border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.08);border:none;max-width:800px;margin:30px auto;background:#fff}
 h1{color:#0066cc;font-size:1.8rem}
-#signature-pad{border:2px dashed #cbd5e1;border-radius:12px;background:#fff;cursor:crosshair;width:100%;height:280px;display:block;touch-action:none}
-.signature-controls{margin-top:15px;display:flex;gap:10px;flex-wrap:wrap}
+h2{color:#0066cc;font-size:1.3rem;border-bottom:2px solid #e5e7eb;padding-bottom:8px;margin-top:20px}
+#signature-pad{border:2px dashed #cbd5e1;border-radius:12px;background:#fff;cursor:crosshair;width:100%;height:200px;display:block;touch-action:none}
 .btn-primary{background:#0066cc;border-color:#0066cc;font-weight:500;padding:10px 24px}
-.email-preview{background:#f9fafb;padding:15px;border-radius:8px;border-right:3px solid #0066cc;margin:15px 0}
-.success-box{background:#dcfce7;color:#166534;padding:20px;border-radius:12px;text-align:center}
+.btn-primary:disabled{opacity:.6}
+.template-card{border:2px solid #e5e7eb;border-radius:12px;padding:20px;cursor:pointer;transition:all .2s;text-align:center}
+.template-card:hover{border-color:#0066cc;background:#f8fafc}
+.template-card.selected{border-color:#0066cc;background:#dbeafe}
+.template-card i{font-size:2.5rem;color:#0066cc}
+.success-box{background:#dcfce7;color:#166534;padding:24px;border-radius:12px;text-align:center}
+.error-box{background:#fef2f2;color:#991b1b;padding:16px;border-radius:8px;margin-top:10px}
+.form-required::after{content:" *";color:#dc2626}
+.consent-row{padding:10px;background:#f9fafb;border-radius:8px;margin-bottom:8px}
+.school-name{color:#666;font-size:.9rem}
 </style>
 </head>
 <body>
 <div class="card p-4">
-  <h1 class="mb-3"><i class="bi bi-pen"></i> חתימת הורים</h1>
-
-  <div id="step-1">
-    <div class="email-preview">
-      <strong>מבית התלמוד</strong>
-      <div id="email-subject" class="my-2"><strong>נושא:</strong> <span>טוען...</span></div>
-      <div id="email-body">טוען תוכן...</div>
-    </div>
-
-    <p class="text-muted">אנא חתום בחלון שלמטה. ניתן לחתום באצבע (במכשיר נייד) או בעכבר.</p>
-    <canvas id="signature-pad" width="650" height="280"></canvas>
-    <div class="signature-controls">
-      <button class="btn btn-outline-secondary" onclick="clearSig()">נקה</button>
-      <input id="signer-name" class="form-control" placeholder="שם החותם (חובה)" style="flex:1;min-width:200px">
-      <button id="submit-btn" class="btn btn-primary" onclick="submitSig()">שלח חתימה</button>
-    </div>
-    <div id="error" class="alert alert-danger mt-3 d-none"></div>
+  <div class="text-center mb-4">
+    <h1><i class="bi bi-file-earmark-text"></i> אישורי הורים</h1>
+    <div class="school-name">בית התלמוד · מעלה עמוס</div>
   </div>
 
-  <div id="step-2" class="d-none">
+  <div id="step-template">
+    <h2>1. בחר סוג אישור</h2>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="template-card" data-tpl="trip" onclick="selectTpl('trip')">
+          <i class="bi bi-geo-alt-fill"></i>
+          <h5 class="mt-2">אישור טיול</h5>
+          <p class="text-muted small mb-0">יציאה לפעילות מחוץ למוסד</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="template-card" data-tpl="photo" onclick="selectTpl('photo')">
+          <i class="bi bi-camera-fill"></i>
+          <h5 class="mt-2">אישור צילום</h5>
+          <p class="text-muted small mb-0">פרסום תמונות במדיה</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="template-card" data-tpl="medical" onclick="selectTpl('medical')">
+          <i class="bi bi-heart-pulse-fill"></i>
+          <h5 class="mt-2">אישור רפואי</h5>
+          <p class="text-muted small mb-0">טיפול רפואי במקרה חירום</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="template-card" data-tpl="general" onclick="selectTpl('general')">
+          <i class="bi bi-file-text"></i>
+          <h5 class="mt-2">אישור כללי</h5>
+          <p class="text-muted small mb-0">טופס חופשי לטקסט מותאם</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="template-card" data-tpl="payment" onclick="selectTpl('payment')">
+          <i class="bi bi-cash"></i>
+          <h5 class="mt-2">הצהרת תשלום</h5>
+          <p class="text-muted small mb-0">אישור תשלום או הוראת קבע</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="template-card" data-tpl="emergency" onclick="selectTpl('emergency')">
+          <i class="bi bi-telephone-plus-fill"></i>
+          <h5 class="mt-2">פרטי חירום</h5>
+          <p class="text-muted small mb-0">עדכון פרטי קשר חירום</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="step-form" class="d-none">
+    <button class="btn btn-link p-0 mb-3" onclick="goBack()"><i class="bi bi-arrow-right"></i> חזור לבחירת סוג</button>
+    <h2 id="form-title">טופס</h2>
+    <div id="form-fields" class="mb-3"></div>
+
+    <h2>חתימת ההורה</h2>
+    <p class="text-muted small">חתום בלוח שלמטה (באצבע במכשיר נייד או עכבר במחשב)</p>
+    <canvas id="signature-pad"></canvas>
+    <div class="d-flex gap-2 mt-2 mb-3">
+      <button class="btn btn-outline-secondary btn-sm" onclick="clearSig()"><i class="bi bi-eraser"></i> נקה</button>
+    </div>
+
+    <div class="d-flex gap-2 align-items-center">
+      <button id="submit-btn" class="btn btn-primary btn-lg" onclick="submitForm()">
+        <i class="bi bi-check-circle-fill"></i> שלח אישור חתום
+      </button>
+      <small class="text-muted">בלחיצה תיווצר תעודת PDF חתומה ותישלח לבית התלמוד</small>
+    </div>
+    <div id="error" class="error-box d-none"></div>
+  </div>
+
+  <div id="step-done" class="d-none">
     <div class="success-box">
-      <h3>✓ החתימה נקלטה</h3>
-      <p>תודה רבה! החתימה שלך נשלחה לבית התלמוד.</p>
+      <i class="bi bi-check-circle-fill" style="font-size:4rem"></i>
+      <h2 class="mt-3">תודה רבה!</h2>
+      <p>האישור החתום נשלח בהצלחה לבית התלמוד.</p>
+      <p class="text-muted small">תעתוק PDF חתום נשמר ותקבלו עותק במייל אם הזנת כתובת.</p>
     </div>
   </div>
 </div>
 
-<script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzhRqTLE4fjjDqrH1we-JlGZ15R-ws8b_gfWF1xF1ewailaiyiS_YXqUhRtb3cQghVt/exec';
-const TOKEN = 'BHT_AGENT_2026';
-
-const canvas = document.getElementById('signature-pad');
-const ctx = canvas.getContext('2d');
-let drawing = false, lastX = 0, lastY = 0;
-ctx.strokeStyle = '#1f2937';
-ctx.lineWidth = 2.5;
-ctx.lineCap = 'round';
-
-function getPos(e){
-  const rect = canvas.getBoundingClientRect();
-  const sx = canvas.width / rect.width;
-  const sy = canvas.height / rect.height;
-  if (e.touches && e.touches[0]) {
-    return [(e.touches[0].clientX - rect.left)*sx, (e.touches[0].clientY - rect.top)*sy];
-  }
-  return [(e.clientX - rect.left)*sx, (e.clientY - rect.top)*sy];
-}
-
-canvas.addEventListener('mousedown', e => { drawing = true; [lastX,lastY] = getPos(e); });
-canvas.addEventListener('mousemove', e => {
-  if (!drawing) return;
-  const [x,y] = getPos(e);
-  ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.stroke();
-  [lastX,lastY] = [x,y];
-});
-canvas.addEventListener('mouseup', () => drawing = false);
-canvas.addEventListener('mouseleave', () => drawing = false);
-canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; [lastX,lastY] = getPos(e); });
-canvas.addEventListener('touchmove', e => {
-  e.preventDefault();
-  if (!drawing) return;
-  const [x,y] = getPos(e);
-  ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.stroke();
-  [lastX,lastY] = [x,y];
-});
-canvas.addEventListener('touchend', e => { e.preventDefault(); drawing = false; });
-
-function clearSig(){
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-function isEmpty(){
-  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-  for (let i = 3; i < data.length; i += 4) {
-    if (data[i] !== 0) return false;
-  }
-  return true;
-}
-
-async function submitSig(){
-  const name = document.getElementById('signer-name').value.trim();
-  if (!name) return showError('יש להזין שם החותם');
-  if (isEmpty()) return showError('אנא חתום בלוח לפני השליחה');
-  document.getElementById('submit-btn').disabled = true;
-  const dataUrl = canvas.toDataURL('image/png');
-  const params = new URLSearchParams(location.search);
-  const ref = params.get('ref') || '';
-  const email = params.get('email') || '';
-  try {
-    const body = new URLSearchParams({
-      action: 'parent_signature_submit',
-      token: TOKEN,
-      name, ref, email,
-      signature: dataUrl,
-    });
-    const r = await fetch(APPS_SCRIPT_URL, { method: 'POST', body, mode: 'cors' });
-    const d = await r.json();
-    if (d.ok) {
-      document.getElementById('step-1').classList.add('d-none');
-      document.getElementById('step-2').classList.remove('d-none');
-    } else {
-      showError(d.error || 'שגיאה בשליחה');
-      document.getElementById('submit-btn').disabled = false;
-    }
-  } catch (e) {
-    showError('שגיאת רשת: ' + e.message);
-    document.getElementById('submit-btn').disabled = false;
-  }
-}
-
-function showError(msg){
-  const el = document.getElementById('error');
-  el.textContent = msg;
-  el.classList.remove('d-none');
-}
-
-// Show email context from URL params
-const params = new URLSearchParams(location.search);
-document.querySelector('#email-subject span').textContent = params.get('subject') || 'בקשת חתימה';
-document.getElementById('email-body').textContent = params.get('body') || 'אנא חתום על הבקשה המצורפת.';
-</script>
+<script src="forms.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
