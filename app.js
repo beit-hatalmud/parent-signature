@@ -20,6 +20,19 @@ function selectTpl(tpl) {
   currentTpl = tpl;
   const form = FORMS[tpl];
   document.getElementById('form-title').textContent = form.title;
+  // 2026-05-21: ensure every form has parent_email (after parent_phone, before checkboxes)
+  // so the school can reply directly to the parent via replyTo header.
+  if (!form.fields.some(f => f.id === 'parent_email')) {
+    const phoneIdx = form.fields.findIndex(f => f.id === 'parent_phone');
+    const emailField = { id:'parent_email', label:'מייל ההורה', type:'email', required:false };
+    if (phoneIdx >= 0) form.fields.splice(phoneIdx + 1, 0, emailField);
+    else {
+      // insert before first checkbox or at the end
+      const cbIdx = form.fields.findIndex(f => f.type === 'checkbox');
+      if (cbIdx >= 0) form.fields.splice(cbIdx, 0, emailField);
+      else form.fields.push(emailField);
+    }
+  }
   const fieldsEl = document.getElementById('form-fields');
   fieldsEl.innerHTML = form.fields.map(f => renderField(f, URL_PARAMS.get(f.id))).join('');
   // Set checkbox states from URL
@@ -132,6 +145,13 @@ async function submitForm() {
   const sendTo = URL_PARAMS.get('to') || '6787012@gmail.com';
   const lt = URL_PARAMS.get('lt') || '';
 
+  // 2026-05-21: extract parent_email for replyTo (so the school can reply to the parent)
+  let parentEmail = '';
+  for (const k in data) {
+    const v = String(data[k] || '').trim();
+    if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { parentEmail = v; break; }
+  }
+
   try {
     const body = new URLSearchParams({
       action: 'parent_form_submit',
@@ -141,6 +161,7 @@ async function submitForm() {
       ref,
       send_to: sendTo,
       lt,
+      parent_email: parentEmail,
       fields: JSON.stringify(data),
       signature: sigDataUrl,
     });
